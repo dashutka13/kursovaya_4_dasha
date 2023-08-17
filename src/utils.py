@@ -1,23 +1,57 @@
-import requests
+import json
 
 
-def get_vacancies(keyword):
-    url = "https://api.hh.ru/vacancies"
+# сортировка по городу
+def user_city(city_input):
+    with open("vacancy.json", "r") as file:
+        template = json.load(file)
 
-    params = {
-        'text': keyword,  # индекс страницы поиска на hh
-        'area': 52,  # поиск осуществляется по вакансиям города Санкт-Петербург
-        'per_page': 15,  # количество вакансий на 1 странице
-    }
+    user_data = []
 
-    response = requests.get(url, params=params)
+    for vacancy in template:
+        if vacancy["city"] == city_input:
+            user_data.append(vacancy)
 
-    if response.status_code == 200:
-        data = response.json()
-        vacancies = data.get("items", [])
-        for vacancy in vacancies:
-            vacancy_id = vacancy.get("id")
-            vacancy_title = vacancy.get("name")
-            vacancy_url = vacancy.get("alternate_url")
-            company_name = vacancy.get("employer", {}).get("name")
-            return f"ID: {vacancy_id}\nTitle: {vacancy_title}\nCompany: {company_name}\nURL: {vacancy_url}\n"
+    return user_data
+
+
+# сортировка по зарплате
+def user_salary(salary_input):
+    with open("vacancy.json", "r") as file:
+        template = json.load(file)
+
+    user_data = []
+
+    for vacancy in template:
+        if isinstance(vacancy["salary"], int) and vacancy["salary"] >= int(salary_input):
+            user_data.append(vacancy)
+
+    return user_data
+
+
+# сортировка по названию вакансии
+def user_vacancy(vacancy_input):
+    with open("vacancy.json", "r") as file:
+        template = json.load(file)
+
+    user_data = []
+
+    for vacancy in template:
+        if vacancy_input in vacancy["name"]:
+            user_data.append(vacancy)
+
+    return user_data
+
+
+# Функция сортировки: по городу, названию вакансии и зарплате.
+def all_search(city_input, vacancy_input, salary_input):
+    with open("vacancy.json", "r") as file:
+        template = json.load(file)
+
+        user_data = []
+        for vacancy in template:
+            if vacancy_input in vacancy["name"]:
+                if isinstance(vacancy["salary"], int) and vacancy["salary"] >= int(salary_input):
+                    if vacancy["city"] == city_input:
+                        user_data.append(vacancy)
+        return user_data
