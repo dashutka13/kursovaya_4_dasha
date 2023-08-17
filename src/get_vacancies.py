@@ -10,11 +10,11 @@ class GetVacancies(ABC):
     """абстрактный класс  """
 
     @staticmethod
-    def get_page():
+    def get_vacancies():
         pass
 
     @staticmethod
-    def save_to_json():
+    def save_vacancies():
         pass
 
 
@@ -22,7 +22,7 @@ class HeadHunterAPI(GetVacancies):
     """класс для работы с вакансиями с hh"""
 
     @staticmethod
-    def get_page(page=0):
+    def get_vacancies(page=0):
         """
         Статический метод для получения страницы со списком вакансий с hh
         :param page: индекс страницы
@@ -42,18 +42,18 @@ class HeadHunterAPI(GetVacancies):
         return data
 
     @staticmethod
-    def save_to_json():
+    def save_vacancies():
         """Записывает результат в файл Json"""
 
         for page in range(0, 20):
             """ Преобразуем текст ответа запроса в справочник Python"""
 
-            page_to_json = json.loads(HeadHunterAPI.get_page(page))
+            page_to_json = json.loads(HeadHunterAPI.get_vacancies(page))
 
             """называем файл"""
-            vac_to_json = 'vacancies.json'
+            file_name = 'headhunter.json'
 
-            with open(vac_to_json, "w", encoding="utf-8") as file:
+            with open(file_name, "w", encoding="utf-8") as file:
                 file.write(json.dumps(page_to_json))
 
             if (page_to_json['pages'] - page) <= 1:
@@ -67,7 +67,7 @@ class SuperJobAPI(GetVacancies):
     """класс для работы с вакансиями с hh"""
 
     @staticmethod
-    def get_page(page=0):
+    def get_vacancies(page=0):
         """
         Статический метод парсинга вакансий на sj
         :param page: номер страницы
@@ -82,8 +82,9 @@ class SuperJobAPI(GetVacancies):
         }
 
         params = {
-            "count": 100,
-            "page": page,
+           "count": 100,
+           "page": page,
+           "not_archive": True,
         }
 
         response = requests.get(url, headers=headers, params=params)
@@ -93,23 +94,26 @@ class SuperJobAPI(GetVacancies):
         return data
 
     @staticmethod
-    def save_to_json():
+    def save_vacancies():
         """Записывает результат в файл Json"""
 
         for page in range(0, 5):
             """ Преобразуем текст ответа запроса в справочник Python"""
 
-            page_to_json = json.loads(SuperJobAPI.get_page(page))
+            page_to_json = json.loads(SuperJobAPI.get_vacancies(page))
 
             """называем файл"""
-            vac_to_json = 'vacancies.json'
+            file_name = 'superjob.json'
 
             """записываем данные в файл"""
-            with open(vac_to_json, "w", encoding="utf-8") as file:
+            with open(file_name, "w", encoding="utf-8") as file:
                 file.write(json.dumps(page_to_json))
 
             if (page_to_json['total'] - page) <= 1:
                 break
 
-            """Необязательная задержка, но чтобы не нагружать сервисы hh, оставим. 5 сек мы может подождать"""
+            """Необязательная задержка, но чтобы не нагружать сервисы hh, оставим. 5 сек мы можем подождать"""
             time.sleep(0.25)
+
+
+HeadHunterAPI.save_vacancies()
